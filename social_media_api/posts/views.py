@@ -1,14 +1,11 @@
 from django.shortcuts import render
-
-# Create your views here.
-
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from posts.models import Post
 from followers.models import Follow
 from posts.serializers import PostSerializer
 from django.db.models import Q
-
+from rest_framework.exceptions import PermissionDenied
 
 class PostCreateView(generics.CreateAPIView):
     queryset = Post.objects.all()
@@ -18,13 +15,9 @@ class PostCreateView(generics.CreateAPIView):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-
-
 class PostListView(generics.ListAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-
-
 
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.all()
@@ -32,11 +25,16 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
 
     def perform_update(self, serializer):
+        # Check if the user is the author of the post
         if self.get_object().author != self.request.user:
             raise PermissionDenied('You cannot edit this post')
         super().perform_update(serializer)
 
-
+    def perform_destroy(self, instance):
+        # Check if the user is the author of the post
+        if instance.author != self.request.user:
+            raise PermissionDenied('You cannot delete this post')
+        instance.delete()
 
 class FeedListView(generics.ListAPIView):
     serializer_class = PostSerializer

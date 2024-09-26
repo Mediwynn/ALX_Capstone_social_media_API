@@ -1,0 +1,9 @@
+{
+    "python.analysis.autoImportCompletions": true,
+    "python.venvPath": "./venv",
+    "python.defaultInterpreterPath": "./venv/Scripts/python.exe",  // For Windows
+    "python.analysis.extraPaths": [
+        "./social_media_api",  // Adjust this path to where your Django project is
+        "./venv/Lib/site-packages"
+    ]
+}
