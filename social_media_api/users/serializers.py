@@ -1,4 +1,3 @@
-# users/serializers.py
 from rest_framework import serializers
 from .models import User
 
@@ -10,6 +9,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'email', 'password', 'bio', 'profile_picture']
         extra_kwargs = {'password': {'write_only': True}}
+        ref_name = 'UserProfileSerializer'  # Add a unique ref_name here
 
     def create(self, validated_data):
         # Create user using create_user to ensure password is hashed

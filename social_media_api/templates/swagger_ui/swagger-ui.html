@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}API Documentation{% endblock %}
+
+{% block content %}
+    <div id="swagger-ui"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.52.5/swagger-ui-bundle.js"></script>
+    <script>
+        window.onload = function() {
+            const ui = SwaggerUIBundle({
+                url: "{% url 'schema-swagger-ui' %}?format=openapi",
+                dom_id: '#swagger-ui',
+                presets: [SwaggerUIBundle.presets.apis],
+                layout: "BaseLayout",
+                docExpansion: "none"
+            });
+        }
+    </script>
+{% endblock %}
