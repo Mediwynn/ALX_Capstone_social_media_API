@@ -1,15 +1,18 @@
 from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
-from posts.models import Post
+from posts.models import Post, Comment
 from followers.models import Follow
-from posts.serializers import PostSerializer
+from posts.serializers import PostSerializer, CommentSerializer
 from django.db.models import Q
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 
 class PostCreateView(generics.CreateAPIView):
     queryset = Post.objects.all()
@@ -22,6 +25,9 @@ class PostCreateView(generics.CreateAPIView):
 class PostListView(generics.ListAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['author']  # filter posts by the author's ID
+    search_fields = ['content']  # search posts by the content
 
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.all()
@@ -64,6 +70,34 @@ class FeedListView(generics.ListAPIView):
         else:
             return queryset.order_by('-created_at')  # Fallback in case of an invalid parameter
 
+class CommentCreateView(generics.CreateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        # Get the post object based on the post_id passed in the URL
+        post = get_object_or_404(Post, id=self.kwargs['post_id'])
+        # Save the comment, linking the post and the current user
+        serializer.save(post=post, user=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        # Use the default validation and save process
+        serializer = self.get_serializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response({"detail": "Comment added successfully."}, status=status.HTTP_201_CREATED)
+    
+
+class PostDeleteView(generics.DestroyAPIView):
+    queryset = Post.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def perform_destroy(self, instance):
+        # Ensure that the user is the author before deleting the post
+        if instance.author != self.request.user:
+            raise PermissionDenied("You cannot delete this post.")
+        instance.delete()
 
 @api_view(['POST'])
 def like_post(request, pk):

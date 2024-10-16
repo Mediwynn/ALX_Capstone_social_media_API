@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'followers',
     'rest_framework_simplejwt',
     'drf_yasg',
+    'django_extensions',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -76,11 +78,12 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.environ.get('DB_NAME', 'postgres'),  # Use environment variables
         'USER': os.environ.get('DB_USER', 'postgres'),  # Environment variable for user
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'Malibu12a2015'),  # Environment variable for password
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'password123'),  # Environment variable for password
         'HOST': os.environ.get('DB_HOST', 'localhost'),  # Environment variable for host
         'PORT': os.environ.get('DB_PORT', '5432'),  # Environment variable for port
     }
 }
+
 
 # If DATABASE_URL is set, use it with dj_database_url
 DATABASE_URL = os.environ.get('DATABASE_URL')
@@ -104,6 +107,11 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTH_USER_MODEL = 'users.User'
+
+# Customizing Django admin title
+ADMIN_SITE_HEADER = "Social Media API Admin"
+ADMIN_SITE_TITLE = "Social Media Admin"
+
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
@@ -131,6 +139,10 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
     ],
 }
 
