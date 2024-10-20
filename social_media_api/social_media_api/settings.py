@@ -21,7 +21,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'your-default-secret-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'social_media_api.herokuapp.com localhost 127.0.0.1').split()
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'social_media_api.herokuapp.com localhost 127.0.0.1').split() + ['Mediwynn.pythonanywhere.com']
 
 # Application definition
 INSTALLED_APPS = [
